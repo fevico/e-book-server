@@ -1,6 +1,16 @@
-import {add} from '@/test/math';
-const a = 4;
+import '@/db/connect'
+import express from "express";
+import authRouter from "./routes/auth";
 
-const b = 5;
+const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
-console.log("This is the final answer:", add(a, b))
+ 
+app.use('/auth', authRouter)
+
+const port = process.env.PORT || 8000;
+
+app.listen(port, () => { 
+  console.log(`Server is running on port ${port}`);
+});
