@@ -1,4 +1,5 @@
 import nodemailer from 'nodemailer'
+
 interface VerificationMailsOption{
     to: string,
     link: string,
@@ -8,9 +9,9 @@ const transport = nodemailer.createTransport({
     host: "sandbox.smtp.mailtrap.io",
     port: 2525,
     auth: {
-      user: process.env.MAILTRAP_TEST_USER,
-      pass: process.env.MAILTRAP_TEST_PASS
-    }
+      user: process.env.MAIL_TRAP_USER,
+      pass: process.env.MAIL_TRAP_PASS,
+    },
   });
 
 const mail = {
