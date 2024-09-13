@@ -5,6 +5,7 @@ import UserModel from "@/models/user";
 import mail from "@/utils/mail";
 import { formatUserProfile, sendErrorResponse } from "@/utils/helper";
 import jwt from "jsonwebtoken"
+import { updateAvatarToCloudinary } from "@/utils/fileUpload";
 
 export const generateAuthLink: RequestHandler = async(req, res) =>{
 
@@ -73,8 +74,8 @@ export const verifyAuthToken: RequestHandler = async (req, res) => {
     sameSite: 'strict',
     expires: new Date(Date.now() + 5*24*60*60*1000)
 })
-    //   res.redirect(`${process.env.AUTH_SUCCESS_URL}?profile=${JSON.stringify(formatUserProfile(user))}`)
-    res.send()
+    // res.redirect(`${process.env.AUTH_SUCCESS_URL}?profile=${JSON.stringify(formatUserProfile(user))}`)
+     res.send()
   };
 
   export const sendProfileInfo: RequestHandler = async (req, res) => {
@@ -86,3 +87,22 @@ export const verifyAuthToken: RequestHandler = async (req, res) => {
   export const logout: RequestHandler = async (req, res) => {
     res.clearCookie('authToken').send()  
   }
+
+  export const updateProfile: RequestHandler = async (req, res) => {
+   const user = await UserModel.findByIdAndUpdate(req.user.id, {name: req.body.name, signedUp: true}, {new: true})
+   if(!user) return sendErrorResponse({
+        status: 500,
+        message: "Something went wrong, user not found!",
+        res,
+      });
+  //  if there is any file upload them to cloud and update the url in the user profile
+  const file = req.files.avatar
+
+  if (file && !Array.isArray(file)) {
+    // if you are using cloudinary this is the method you should use
+    user.avatar = await updateAvatarToCloudinary(file, user.avatar?.id);
+
+    await user.save();
+  }
+   res.json({profile: formatUserProfile(user)})
+ }
