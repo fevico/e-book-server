@@ -5,6 +5,7 @@ import authRouter from "./routes/auth";
 import { errorHandler } from './middleware/error';
 import cookieParser from 'cookie-parser';
 import { fileParser } from './middleware/file';
+import authorRouter from './routes/author';
 
 const app = express();
 app.use(express.json());
@@ -13,6 +14,7 @@ app.use(cookieParser());
 
  
 app.use('/auth', authRouter)
+app.use('/author', authorRouter)
 app.use('/test', fileParser, (req, res) => {
   console.log(req.files)
   console.log(req.body)
