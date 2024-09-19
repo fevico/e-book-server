@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { ZodRawShape, ZodType, z } from "zod";
+import { ZodObject, ZodRawShape, ZodType, z } from "zod";
 
 export const emailValidationSchema = z.object({
   email: z
@@ -40,8 +40,119 @@ export const newAuthorSchema = z.object({
       .optional(),
 })
 
+export const commonBookSchema = {
+  uploadMethod: z.enum(["aws", "local"],{
+    required_error: "Please define a valid upload method!",
+    message: "upload method has to be aws or local!",
+  }),
+  title: z.string({
+    required_error: "Title is missing!",
+    invalid_type_error: "Invalid title!",
+  }).trim(),
 
-export const validate = <T extends unknown>(schema: ZodType<T>): RequestHandler => {
+  description: z.string({
+    required_error: "Description is missing!",
+    invalid_type_error: "invalid description!",
+  }).trim(),
+
+  language: z.string({
+    required_error: "Language is missing!",
+    invalid_type_error: "invalid language!",
+  }).trim(),
+  
+  publishedAt: z.coerce.date({
+    required_error: "Published Date is missing!",
+    invalid_type_error: "invalid published date!",
+  }),
+
+  publicationName: z.string({
+    required_error: "Publication Name is missing!",
+    invalid_type_error: "invalid publication name!",
+  }).trim(),
+
+  genre: z.string({
+    required_error: "Genre Name is missing!",
+    invalid_type_error: "invalid genre!",
+  }).trim(),
+
+  price: z.string({
+    required_error: "Price is missing!",
+    invalid_type_error: "invalid price!"
+  }).transform((value, ctx) =>{
+    try {
+      return JSON.parse(value)
+    } catch (error) {
+      ctx.addIssue({code: 'custom', message: 'Invalid Price Data'})
+      return z.NEVER
+    }
+
+  }).pipe(
+    z.object({
+      mrp: z.number({
+        required_error: "MRP is missing!",
+        invalid_type_error: "Invalid MRP!"
+      }).nonnegative("Invalid mrp price!"),
+      sale: z.number({
+         required_error: "Sale is missing!",
+        invalid_type_error: "Invalid sale!"
+      }).nonnegative("Invalid sale price!"),
+    })
+  ).refine((price) =>price.sale <= price.mrp, "Sale price should be less than MRP!"),
+ 
+}
+
+const fileInfo = z
+    .string({
+      required_error: "File info is missing!",
+      invalid_type_error: "Invalid file info!",
+    })
+    .transform((value, ctx) => {
+      try {
+        return JSON.parse(value);
+      } catch (error) {
+        ctx.addIssue({ code: "custom", message: "Invalid File Info!" });
+        return z.NEVER;
+      }
+    })
+    .pipe(
+      z.object({
+        name: z
+          .string({
+            required_error: "fileInfo.name is missing!",
+            invalid_type_error: "Invalid fileInfo.name!",
+          })
+          .trim(),
+        type: z
+          .string({
+            required_error: "fileInfo.type is missing!",
+            invalid_type_error: "Invalid fileInfo.type!",
+          })
+          .trim(),
+        size: z
+          .number({
+            required_error: "fileInfo.size is missing!",
+            invalid_type_error: "Invalid fileInfo.size!",
+          })
+          .nonnegative("Invalid fileInfo.size!"),
+      })
+    )
+
+
+export const newBookSchema = z.object({
+  ...commonBookSchema,
+  fileInfo,
+})
+export const updateBookSchema = z.object({
+  ...commonBookSchema,
+  slug: z.string({
+    message: "Invalid slug!",
+  }).trim(),
+  fileInfo: fileInfo.optional(),
+})
+
+
+
+export const validate = <T extends ZodRawShape>(schema: ZodObject<T>): RequestHandler => {
   return (req, res, next) => {
 
     const result = schema.safeParse(req.body);

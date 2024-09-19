@@ -12,7 +12,8 @@ declare global{
                 email: string;
                 role: "user" | "author",
                 avatar?: string;
-                signedUp: boolean
+                signedUp: boolean;
+                authorId?: string;
             }
         }
     }
@@ -41,4 +42,21 @@ export const isAuth : RequestHandler = async (req, res, next) => {
   }
   req.user = formatUserProfile(user);
   next()
+}
+
+export const isAuthor: RequestHandler = (req, res, next) => {
+  if(req.user.role === 'author') next()  
+    else sendErrorResponse({
+        message: "Unauthorized request",
+        status: 401,
+        res
+    })
+  // if(req.user?.role !== "author"){
+    //     return sendErrorResponse({
+    //         message: "Unauthorized request",
+    //         status: 401,
+    //         res
+    //     })
+    // }
+    // next()
 }
