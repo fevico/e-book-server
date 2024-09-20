@@ -1,4 +1,5 @@
 import UserModel from "@/models/user";
+import { AddReviewRequestHandler } from "@/types";
 import { formatUserProfile, sendErrorResponse } from "@/utils/helper";
 import { RequestHandler } from "express";
 import jwt from "jsonwebtoken";
@@ -42,6 +43,17 @@ export const isAuth : RequestHandler = async (req, res, next) => {
   }
   req.user = formatUserProfile(user);
   next()
+}
+
+export const isPurchasedByUser: AddReviewRequestHandler = async(req, res, next) => {
+ const user = await UserModel.findOne({_id: req.user.id, books: req.body.bookId})
+ if(!user)
+    return sendErrorResponse({
+      res,
+      message: "Sorry you are not allow to review this book",
+      status: 403,
+    });
+    next();
 }
 
 export const isAuthor: RequestHandler = (req, res, next) => {

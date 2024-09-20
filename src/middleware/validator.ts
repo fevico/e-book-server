@@ -1,4 +1,5 @@
 import { RequestHandler } from "express";
+import { isValidObjectId } from "mongoose";
 import { ZodObject, ZodRawShape, ZodType, z } from "zod";
 
 export const emailValidationSchema = z.object({
@@ -148,6 +149,28 @@ export const updateBookSchema = z.object({
     message: "Invalid slug!",
   }).trim(),
   fileInfo: fileInfo.optional(),
+})
+
+export const newReviewSchema = z.object({
+  rating: z.number({
+    required_error: "Rating is missing!",
+    invalid_type_error: "Invalid rating!",
+  }).nonnegative("Rating should be between 1 to 5 0")
+  .min(1, "Rating should be greater than 1!")
+  .max(5, "Rating should be less than 5!"),
+  content: z.string({
+    invalid_type_error: "Invalid content!",
+  }).optional(),
+  bookId: z.string({
+    required_error: "Book Id is missing!",
+    invalid_type_error: "Invalid book id!",
+  }).transform((arg, ctx) =>{
+    if(!isValidObjectId(arg)){
+      ctx.addIssue({code: 'custom', message: 'Invalid Book Id!'})
+      return z.NEVER
+    }
+    return arg
+  })
 })
 
 

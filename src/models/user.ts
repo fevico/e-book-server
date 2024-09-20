@@ -7,7 +7,8 @@ export interface UserDoc{
     role: "user" | "author",
     signedUp: boolean,
     avatar?: {url: string, id: string},
-    authorId?: ObjectId
+    authorId?: ObjectId,
+    books: ObjectId[] //array of book ids
 }
 
 
@@ -39,7 +40,11 @@ const userSchema = new Schema<UserDoc>({
     authorId:{
         type:Schema.Types.ObjectId,
         ref: "Author"
-    }
+    },
+    books:[{
+        type: Schema.ObjectId,
+        ref: "Book"
+    }]
 
 })
 

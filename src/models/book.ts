@@ -10,6 +10,7 @@ export interface BookDoc{
     publishedAt: Date;
     publicationName: string;
     genre: string;
+    averageRating?: number;
     price: {
         mrp: number;
         sale: number;
@@ -48,6 +49,9 @@ export interface BookDoc{
             size: { type: String, required: true },
             id: { type: String, required: true },
          },
+         averageRating:{
+            type: Number,
+         }
     })
 
     const BookModel = model('Book', bookSchema);
