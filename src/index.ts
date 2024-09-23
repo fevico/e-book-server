@@ -12,6 +12,7 @@ import formidable from 'formidable';
 import reviewRouter from './routes/reviews';
 import ReviewModel from './models/review';
 import { Types } from 'mongoose';
+import historyRouter from './routes/history';
 
 const app = express();
 const publicPath = path.join(__dirname, './books')
@@ -26,6 +27,7 @@ app.use('/auth', authRouter)
 app.use('/author', authorRouter)
 app.use('/book', bookRouter)
 app.use('/review', reviewRouter)
+app.use('/history', historyRouter)
 
 
 app.use('/test', async(req, res) => {
