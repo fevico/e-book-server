@@ -2,12 +2,15 @@ import BookModel, { BookDoc } from "@/models/book";
 import { CreateBookRequestHandler, UpdateBookRequestHandler } from "@/types";
 import { uploadBookToLocalDir, UploadCoverToCloudinary } from "@/utils/fileUpload";
 import { formatFileSize, sendErrorResponse } from "@/utils/helper";
-import { Types } from "mongoose";
+import { ObjectId, Types } from "mongoose";
 import slugify from "slugify";
 import AuthorModel from "@/models/author";
 import path from "path";
 import fs from "fs";
 import cloudinary from "@/cloud/cloudinary";
+import { RequestHandler } from "express";
+import UserModel from "@/models/user";
+import HistoryModel, { Settings } from "@/models/history";
 
 export const createNewBook: CreateBookRequestHandler = async (req, res) => {
   const { body, files, user } = req;
@@ -145,3 +148,117 @@ export const updateBook: UpdateBookRequestHandler = async (req, res) => {
  await book.save()
  res.send()
   }
+  interface PopulatedBooks {
+    cover?: {
+      url: string;
+      id: string;
+    };
+    _id: ObjectId;
+    author: {
+      _id: ObjectId;
+      name: string;
+      slug: string;
+    };
+    title: string;
+    slug: string;
+  }
+  export const getAllPurchasedBooks: RequestHandler = async (req, res) => {
+    const user = await UserModel.findById(req.user.id).populate<{
+      books: PopulatedBooks[];
+    }>({
+      path: "books",
+      select: "author title cover slug",
+      populate: { path: "author", select: "slug name" },
+    });
+    if (!user) return res.json({ books: [] });
+    res.json({
+      books: user.books.map((book) => ({
+        id: book._id,
+        title: book.title,
+        cover: book.cover?.url,
+        slug: book.slug,
+        author: {
+          name: book.author.name,
+          slug: book.author.slug,
+        },
+      })),
+    });
+  };
+
+  export const getPublicBookDetails: RequestHandler = async (req, res) => {
+  const book = await BookModel.findOne({slug: req.params.slug })
+    .populate<{author: PopulatedBooks["author"]}>({path: "author", select: "name slug" });
+    if(!book) return sendErrorResponse({
+      message: "Book not found!",
+      status: 404,
+      res
+    })
+    const {_id, title, description, cover, author, slug, price: {mrp, sale}, genre, language, publicationName, publishedAt, fileInfo, averageRating} = book
+    res.json({
+      book: {
+       id: _id,
+       title, genre, slug, description, cover: cover?.url, language, publicationName, publishedAt: publishedAt.toISOString().split("T")[0], fileInfo,
+       rating: averageRating?.toFixed(1),
+       price:{
+        mrp: (mrp / 100).toFixed(2),
+        sale: (sale / 100).toFixed(2)
+       },
+       author:{
+        id: author._id,
+        name: author.name,
+        slug: author.slug
+       }
+      },
+    })
+  }
+
+  export const getBookByGenre: RequestHandler = async (req, res) => {
+   const books = await BookModel.find({genre: req.params.genre}).limit(5)
+
+   res.json({
+    books: books.map((book) => {
+      const {_id, title, cover, averageRating, slug, genre, price: {mrp, sale}} = book
+      return {
+          id: _id,
+          title, genre, slug, cover: cover?.url,
+          rating: averageRating?.toFixed(1),
+          price:{
+           mrp: (mrp / 100).toFixed(2),
+           sale: (sale / 100).toFixed(2)
+          }
+      }
+    })
+   })
+      
+  }
+
+  export const generateBookAccessUrl: RequestHandler = async (req, res) => {
+    const {slug} = req.params
+   const book = await BookModel.findOne({slug})
+   if(!book) return sendErrorResponse({
+    message: "Book not found!",
+    status: 404,
+    res
+   })
+   const user = await UserModel.findOne({_id: req.user.id, books: book._id})
+   if(!user) return sendErrorResponse({
+    message: "User not found!",
+    status: 404,
+    res
+   })
+
+   const history = await HistoryModel.findOne({reader: req.user.id, book: book._id})
+   const settings: Settings = {
+    lastLocation: "",
+    highlights: []
+   }
+   if(history){
+    settings.highlights = history.highlights.map(h => ({fill: h.fill, selection: h.selection}));
+    settings.lastLocation = history.lastLocation
+   }
+   res.json({settings,
+    url: `${process.env.BOOK_API_URL}/${book.fileInfo.id}`,
+  })
+}
+  
+

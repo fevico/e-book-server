@@ -31,6 +31,18 @@ export const registerAuthor: RequestAuthorHandler  = async (req, res) =>{
    res.json({message: "Thanks for registering as an author"})
 }
 
+export const updateAuthor: RequestAuthorHandler  = async (req, res) =>{
+    const {body, user} = req
+
+   await AuthorModel.findByIdAndUpdate(user.authorId, {
+        name: body.name,
+        about: body.about,
+        socialLinks: body.socialLinks
+    })
+    
+   res.json({message: "Your profile has been updated"})
+}
+
 export const getAuthorDetails: RequestHandler = async (req, res) =>{
     const {slug} = req.params
   const author =  await  AuthorModel.findOne({slug})

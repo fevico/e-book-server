@@ -25,7 +25,7 @@ export interface BookDoc{
     }
 }
     const bookSchema = new Schema<BookDoc>({
-        author: { type:Schema.Types. ObjectId, ref: "User", required: true },
+        author: { type:Schema.Types. ObjectId, ref: "Author", required: true },
         title: { type: String, required: true, trim: true },
         slug: { type: String, required: true, trim: true, unique: true },
         description: { type: String, required: true, trim: true, },

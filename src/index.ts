@@ -13,6 +13,7 @@ import reviewRouter from './routes/reviews';
 import ReviewModel from './models/review';
 import { Types } from 'mongoose';
 import historyRouter from './routes/history';
+import { isAuth, isValidReadingRequest } from './middleware/auth';
 
 const app = express();
 const publicPath = path.join(__dirname, './books')
@@ -20,7 +21,7 @@ const publicPath = path.join(__dirname, './books')
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use('/books', express.static(publicPath));
+app.use('/books', isAuth, isValidReadingRequest, express.static(publicPath));
 
   
 app.use('/auth', authRouter)
