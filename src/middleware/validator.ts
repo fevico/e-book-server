@@ -203,6 +203,27 @@ export const historyValidationSchema = z.object({
   remove: z.boolean({required_error: "Remove is missing", invalid_type_error: "remove must be a boolean value!"})
 })
 
+export const cartItemsSchema = z.object({
+  items:z.array(
+    z.object({
+      product:z.string({
+        required_error: "Product Id is missing!",
+        invalid_type_error: "Invalid product id!",
+      }).transform((arg, ctx) =>{
+        if(!isValidObjectId(arg)){
+          ctx.addIssue({code: 'custom', message: 'Invalid Product Id!'})
+          return z.NEVER
+        }
+        return arg
+      }),
+      quantity:z.number({
+        required_error: "Quantity is missing!",
+        invalid_type_error: "Quantity must be number!",
+      })
+    })
+  )
+})
+
 
 export const validate = <T extends ZodRawShape>(schema: ZodObject<T>): RequestHandler => {
   return (req, res, next) => {

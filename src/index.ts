@@ -14,6 +14,7 @@ import ReviewModel from './models/review';
 import { Types } from 'mongoose';
 import historyRouter from './routes/history';
 import { isAuth, isValidReadingRequest } from './middleware/auth';
+import cartRouter from './routes/cart';
 
 const app = express();
 const publicPath = path.join(__dirname, './books')
@@ -29,6 +30,7 @@ app.use('/author', authorRouter)
 app.use('/book', bookRouter)
 app.use('/review', reviewRouter)
 app.use('/history', historyRouter)
+app.use('/cart', cartRouter)
 
 
 app.use('/test', async(req, res) => {
