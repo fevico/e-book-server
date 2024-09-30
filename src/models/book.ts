@@ -2,6 +2,7 @@ import { Model, model, Schema, Types } from "mongoose";
 import { ObjectId } from "mongoose";
 
 export interface BookDoc{
+    _id: ObjectId;
     author: Types.ObjectId;
     title: string;
     slug: string;
@@ -53,6 +54,13 @@ export interface BookDoc{
             type: Number,
          }
     })
+
+    bookSchema.pre("save", function (next) {
+        const { mrp, sale } = this.price;
+        this.price = { mrp: mrp * 100, sale: sale * 100 };
+      
+        next();
+      });
 
     const BookModel = model('Book', bookSchema);
     export default BookModel as Model<BookDoc>
