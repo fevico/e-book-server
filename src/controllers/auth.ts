@@ -10,6 +10,7 @@ import { updateAvatarToCloudinary } from "@/utils/fileUpload";
 export const generateAuthLink: RequestHandler = async(req, res) =>{
 
     const {email} = req.body
+
    let user = await UserModel.findOne({email})
    if(!user){
     user = await UserModel.create({email})

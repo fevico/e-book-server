@@ -6,5 +6,6 @@ export const errorHandler: ErrorRequestHandler = ((error, req, res, next) => {
         return res.status(401).json({error: error.message})  
 
     }
+    console.log(error)
     res.status(500).json({error: error.message})  
   })
