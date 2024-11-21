@@ -1,8 +1,12 @@
 import CartModel from "@/models/cart";
 import OrderModel from "@/models/order";
 import UserModel from "@/models/user";
-import stripe from "@/stripe";
-import { StripeCustomer, StripeFailedIntent, StripeSuccessIntent } from "@/stripe/stripe.types";
+import stripe from "@/stripe-local";
+import {
+  StripeCustomer,
+  StripeFailedIntent,
+  StripeSuccessIntent,
+} from "@/stripe-local/stripe.types";
 import { sendErrorResponse } from "@/utils/helper";
 import { RequestHandler } from "express";
 
@@ -30,7 +34,7 @@ export const handlePayment: RequestHandler = async (req, res) => {
       const customer = (await stripe.customers.retrieve(
         customerId
       )) as unknown as StripeCustomer;
-      console.log(customer)
+      console.log(customer);
       const { orderId, type, userId } = customer.metadata;
 
       const order = await OrderModel.findByIdAndUpdate(orderId, {
@@ -50,8 +54,8 @@ export const handlePayment: RequestHandler = async (req, res) => {
         await UserModel.findByIdAndUpdate(userId, {
           $push: { books: { $each: bookIds }, orders: { $each: [order._id] } },
         });
-        if(type === "checkout")
-        await CartModel.findOneAndUpdate({ userId }, { items: [] });
+        if (type === "checkout")
+          await CartModel.findOneAndUpdate({ userId }, { items: [] });
       }
     }
   } catch (error) {
