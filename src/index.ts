@@ -1,4 +1,5 @@
 import 'express-async-errors'
+import 'dotenv/config';
 import '@/db/connect'
 import express from "express";
 import path from 'path';
