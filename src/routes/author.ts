@@ -7,6 +7,6 @@ const authorRouter = Router()
 
 authorRouter.post('/register', isAuth, validate(newAuthorSchema), registerAuthor)
 authorRouter.patch('/', isAuth, isAuthor, validate(newAuthorSchema), updateAuthor)
-authorRouter.get('/:slug', getAuthorDetails)
+authorRouter.get('/:id', getAuthorDetails)
 
 export default authorRouter;

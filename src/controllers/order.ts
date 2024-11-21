@@ -9,8 +9,8 @@ import { isValidObjectId } from "mongoose";
 
 export const getOrders: RequestHandler = async (req, res, next) => {
    const orders = await OrderModel.find({userId: req.user.id}).
-   populate<{orderItems: {id: BookDoc, price: number, totalPrice: number, qty: number}[]}>("orderItems.id")
-   res.json({
+   populate<{orderItems: {id: BookDoc, price: number, totalPrice: number, qty: number}[]}>("orderItems.id").sort("-createdAt")
+   res.json({ 
     orders: orders.map((item) =>{
         return {
             id: item._id,

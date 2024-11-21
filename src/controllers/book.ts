@@ -143,7 +143,7 @@ export const updateBook: UpdateBookRequestHandler = async (req, res) => {
     }
    book.cover = await UploadCoverToCloudinary(cover);
 
-  }
+  } 
  }
  await book.save()
  res.send()
@@ -178,12 +178,13 @@ export const updateBook: UpdateBookRequestHandler = async (req, res) => {
         cover: book.cover?.url,
         slug: book.slug,
         author: {
+          id: book.author._id,
           name: book.author.name,
           slug: book.author.slug,
         },
       })),
     });
-  };
+  }; 
 
   export const getPublicBookDetails: RequestHandler = async (req, res) => {
   const book = await BookModel.findOne({slug: req.params.slug })

@@ -14,11 +14,13 @@ import cartRouter from './routes/cart';
 import checkoutRouter from './routes/checkout';
 import webHookRouter from './routes/wbHook';
 import cors from 'cors';
+import morgan from 'morgan';
 import orderRouter from './routes/order';
 
 const app = express();
 const publicPath = path.join(__dirname, './books')
 
+app.use(morgan('dev'));
 app.use(cors({ origin: [process.env.APP_URL!], credentials: true }));
 app.use("/webhook", webHookRouter);
 

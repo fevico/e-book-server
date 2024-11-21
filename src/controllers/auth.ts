@@ -73,10 +73,10 @@ export const verifyAuthToken: RequestHandler = async (req, res) => {
     httpOnly: true, 
     secure: process.env.NODE_ENV !== 'development',
     sameSite: 'strict',
-    expires: new Date(Date.now() + 10*24*60*60*1000)
+    expires: new Date(Date.now() + 10*24*60*60*1000)   
 })
-    // res.redirect(`${process.env.AUTH_SUCCESS_URL}?profile=${JSON.stringify(formatUserProfile(user))}`)
-     res.send()
+    res.redirect(`${process.env.AUTH_SUCCESS_URL}?profile=${JSON.stringify(formatUserProfile(user))}`)
+     res.send()  
   };
 
   export const sendProfileInfo: RequestHandler = async (req, res) => {
