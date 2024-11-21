@@ -1,7 +1,7 @@
 import 'express-async-errors'
+import 'dotenv/config';
 import '@/db/connect'
 import express from "express";
-import 'dotenv/config';
 import path from 'path';
 import authRouter from "./routes/auth";
 import { errorHandler } from './middleware/error';
