@@ -72,8 +72,8 @@ export const verifyAuthToken: RequestHandler = async (req, res) => {
     res.cookie('authToken', authToken, {
     httpOnly: true, 
     secure: process.env.NODE_ENV !== 'development',
-    sameSite: 'strict',
-    expires: new Date(Date.now() + 10*24*60*60*1000)   
+    sameSite: 'none',
+    expires: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000)   
 })
     res.redirect(`${process.env.AUTH_SUCCESS_URL}?profile=${JSON.stringify(formatUserProfile(user))}`)
      res.send()  
@@ -86,7 +86,12 @@ export const verifyAuthToken: RequestHandler = async (req, res) => {
   }
 
   export const logout: RequestHandler = async (req, res) => {
-    res.clearCookie('authToken').send()  
+    res.clearCookie('authToken', {
+      httpOnly: true, 
+      secure: process.env.NODE_ENV !== 'development',
+      sameSite: 'none',
+      path: '/'
+    }).send()  
   }
 
   export const updateProfile: RequestHandler = async (req, res) => {
