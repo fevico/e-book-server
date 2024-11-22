@@ -1,7 +1,7 @@
 import BookModel, { BookDoc } from "@/models/book";
 import CartModel from "@/models/cart";
 import OrderModel from "@/models/order";
-import stripe from "@/stripe-local";
+import stripe from "@/stripeLocal";
 import { sanitizeUrl, sendErrorResponse } from "@/utils/helper";
 import { RequestHandler } from "express";
 import { isValidObjectId } from "mongoose";
@@ -12,7 +12,7 @@ type StripeLineItems = Stripe.Checkout.SessionCreateParams.LineItem[];
 type options = {
   customer: Stripe.CustomerCreateParams;
   line_items: StripeLineItems;
-};
+}; 
 
 const generateStripeCheckoutSession = async (options: options) => {
   const customer = await stripe.customers.create(options.customer);

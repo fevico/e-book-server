@@ -1,12 +1,12 @@
 import CartModel from "@/models/cart";
 import OrderModel from "@/models/order";
 import UserModel from "@/models/user";
-import stripe from "@/stripe-local";
+import stripe from "@/stripeLocal";
 import {
   StripeCustomer,
   StripeFailedIntent,
   StripeSuccessIntent,
-} from "@/stripe-local/stripe.types";
+} from "@/stripeLocal/stripe.types"; 
 import { sendErrorResponse } from "@/utils/helper";
 import { RequestHandler } from "express";
 
