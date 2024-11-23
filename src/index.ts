@@ -17,6 +17,7 @@ import webHookRouter from './routes/wbHook';
 import cors from 'cors';
 import morgan from 'morgan';
 import orderRouter from './routes/order';
+import searchRouter from './routes/search';
 
 const app = express();
 const publicPath = path.join(__dirname, './books')
@@ -40,6 +41,7 @@ app.use('/history', historyRouter)
 app.use('/cart', cartRouter)
 app.use('/checkout', checkoutRouter)
 app.use('/order', orderRouter)
+app.use('/search', searchRouter)
 
 
 app.use('/test', async(req, res) => {

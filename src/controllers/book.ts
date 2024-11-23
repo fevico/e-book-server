@@ -1,7 +1,7 @@
 import BookModel, { BookDoc } from "@/models/book";
 import { CreateBookRequestHandler, UpdateBookRequestHandler } from "@/types";
 import { uploadBookToLocalDir, UploadCoverToCloudinary } from "@/utils/fileUpload";
-import { formatFileSize, sendErrorResponse } from "@/utils/helper";
+import { formatBook, formatFileSize, sendErrorResponse } from "@/utils/helper";
 import { isValidObjectId, ObjectId, Types } from "mongoose";
 import slugify from "slugify";
 import AuthorModel from "@/models/author";
@@ -216,19 +216,9 @@ export const updateBook: UpdateBookRequestHandler = async (req, res) => {
   export const getBookByGenre: RequestHandler = async (req, res) => {
    const books = await BookModel.find({genre: req.params.genre}).limit(5)
 
+    books.map(formatBook)
    res.json({
-    books: books.map((book) => {
-      const {_id, title, cover, averageRating, slug, genre, price: {mrp, sale}} = book
-      return {
-          id: _id,
-          title, genre, slug, cover: cover?.url,
-          rating: averageRating?.toFixed(1),
-          price:{
-           mrp: (mrp / 100).toFixed(2),
-           sale: (sale / 100).toFixed(2)
-          }
-      }
-    })
+    books: books.map(formatBook)
    })
       
   }
@@ -290,7 +280,7 @@ export interface AggregationResult {
     id: string
     _id: ObjectId
   }
-  averageRatings?: number
+  averageRating?: number
 }
 
   export const getRecommendedBooks: RequestHandler = async (req, res) => {
@@ -341,18 +331,8 @@ export interface AggregationResult {
        }
      }
     ])
-   const result = recommendedBooks.map<recommendedBooks>((book) => ({
-    id: book._id.toString(),
-    title: book.title,
-    genre: book.genre,
-    slug: book.slug,
-    price: {
-      mrp: (book.price.mrp / 100).toFixed(2),
-      sale: (book.price.sale / 100).toFixed(2),
-    },
-    cover: book.cover?.url,
-    rating: book.averageRatings?.toFixed(1)
-   }))
+   const result = recommendedBooks.map<recommendedBooks>(formatBook)
+
    res.json(result)
   }
   

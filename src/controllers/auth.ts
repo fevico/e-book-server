@@ -72,7 +72,7 @@ export const verifyAuthToken: RequestHandler = async (req, res) => {
     res.cookie('authToken', authToken, {
     httpOnly: true, 
     secure: process.env.NODE_ENV !== 'development',
-    sameSite: 'none',
+    sameSite: 'strict',
     expires: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000)   
 })
     res.redirect(`${process.env.AUTH_SUCCESS_URL}?profile=${JSON.stringify(formatUserProfile(user))}`)

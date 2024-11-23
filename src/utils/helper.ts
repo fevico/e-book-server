@@ -1,3 +1,5 @@
+import { AggregationResult } from "@/controllers/book";
+import { BookDoc } from "@/models/book";
 import { UserDoc } from "@/models/user";
 import { Request, Response } from "express";
 
@@ -23,6 +25,36 @@ export const formatUserProfile = (user: UserDoc): Request["user"] => {
         books: user.books?.map((book) => book.toString()),
     }
 }
+
+interface FormattedBooks{
+    id: string;
+    title: string;
+    genre: string;
+    slug: string;
+    cover?: string;
+    rating?: string;
+    price: {
+        mrp: string;
+        sale: string;
+    };
+  }
+
+export const formatBook = (book: BookDoc | AggregationResult): FormattedBooks => {
+    const {_id, title, genre, slug, cover, averageRating, price} = book 
+    return {
+        id: _id?.toString() || "",
+        title: title,
+        genre: genre,
+        slug: slug,
+        price: {
+          mrp: (price.mrp / 100).toFixed(2),
+          sale: (price.sale / 100).toFixed(2),
+        },
+        cover: cover?.url,
+        rating: averageRating?.toFixed(1)
+       }
+}
+
 
 export function formatFileSize(bytes: number) {
     if (bytes === 0) return "0 Bytes";
